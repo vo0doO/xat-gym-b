@@ -26,7 +26,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('superSecret', config.SecretKey)
 app.set('view engine', 'ejs');
 
-app.use(cors({origin: 'http://localhost:8080'}));
+app.use(cors({origin: config.FrontURL}));
 
 app.use(session({
   secret: 'keyboard cat',
