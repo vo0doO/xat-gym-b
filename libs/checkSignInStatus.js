@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const config = require('../config.json');
+const config = require('../settings.json');
 
 module.exports.checkSignInStatus = checkSignInStatus;
 module.exports.checkSignInStatusServer = checkSignInStatusServer;
@@ -23,7 +23,6 @@ function checkSignInStatus(req, res) {
         return;
     }
 
-    console.log('zzz: ' + JSON.stringify(decoded));
     res.send({
         Status: true,
         Body: {
@@ -34,7 +33,6 @@ function checkSignInStatus(req, res) {
 }
 
 function checkSignInStatusServer(token) {
-    console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
     try {
         var decoded = jwt.verify(token, config.SecretKey);
     } catch (e) {
@@ -48,7 +46,8 @@ function checkSignInStatusServer(token) {
         };
 
     }
-    console.log('xxx: ' + JSON.stringify(decoded.data));
+    
+    console.log('xxx: ' + JSON.stringify(decoded));
 
     return {
         Status: true,

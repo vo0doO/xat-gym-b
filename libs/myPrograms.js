@@ -1,12 +1,12 @@
 const MongoCLient = require('mongodb').MongoClient;
 
 const checkSigIn = require('./checkSignInStatus');
-const config = require('../config.json');
+const config = require('../settings.json');
 
 
 module.exports.myPrograms = myPrograms;
 
-function myPrograms(req, res) {
+async function myPrograms(req, res) {
     var token
     var response = {
         Status: false,
@@ -17,7 +17,6 @@ function myPrograms(req, res) {
     }
 
     var token = req.body.Token;
-    console.log(';;;;;;;;;;;: ' + token);
 
     if (token == '') {
         response.Status = false;
@@ -29,7 +28,6 @@ function myPrograms(req, res) {
     }
 
     var checkToken = checkSigIn.checkSignInStatusServer(token);
-    console.log(JSON.stringify(checkToken));
 
     if (checkToken.Status == false) {
         response.Status = false;
@@ -42,7 +40,7 @@ function myPrograms(req, res) {
 
     var login = checkToken.Body.Decode.Email;
 
-    var programs = checkProgramInDB(login);
+    var programs = await checkProgramInDB(login);
 
     if (programs.Status == false) {
         response.Status = false;
@@ -56,14 +54,17 @@ function myPrograms(req, res) {
 
     response.Status = true;
     response.Body.Login = login;
-    response.Body.Programs = programs.Result;
+    response.Body.Programs = programs.Body.Result;
 
-    return res(response);
+    console.log('end');
+    console.log('xxx2:' + JSON.stringify(programs.Body.Result));
+
+    res.send(response);
+    return;
 }
 
 function checkProgramInDB(login) {
     return new Promise(async done => {
-        console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
         var response = {
             Status: false,
             Body: {

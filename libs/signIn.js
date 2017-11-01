@@ -1,7 +1,7 @@
 const MongoCLient = require('mongodb').MongoClient;
 const jwt = require('jsonwebtoken');
 
-const config = require('../config.json')
+const config = require('../settings.json')
 
 module.exports.signIn = signIn;
 
@@ -29,7 +29,7 @@ async function signIn(req, res) {
         var token = jwt.sign({
             Email: email
         }, config.SecretKey, {
-                expiresIn: 1440
+                expiresIn: 1440,
             });
     } catch (e) {
         console.log('ERROR, libs/signIn.js, signIn(): ' + e.message);

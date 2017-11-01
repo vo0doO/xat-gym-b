@@ -1,12 +1,11 @@
 const MongoCLient = require('mongodb').MongoClient;
 
 const checkSigIn = require('./checkSignInStatus');
-const config = require('../config.json');
+const config = require('../settings.json');
 
 module.exports.addProgram = addProgram;
 
 async function addProgram(req, res) {
-    var token
     var response = {
         Status: false,
         Login: null,
@@ -41,7 +40,7 @@ async function addProgram(req, res) {
 
     var login = checkToken.Body.Decode.Email;
 
-    var added = addProgramToDB(program_name, exercises, login);
+    var added = await addProgramToDB(program_name, exercises, login);
 
     if (added.Status == false) {
         response.Status = false;
@@ -68,7 +67,7 @@ function addProgramToDB(name, exercises, login) {
             }
         }
 
-        MongoCLient.connect(config.MongoURL, async (err, db) => {
+        MongoCLient.connect(config.MongoURL, async(err, db) => {
             if (err) {
                 console.log('ERROR, libs/addProgram.js, addProgramToDB()1: ' + err.message);
 
@@ -91,17 +90,19 @@ function addProgramToDB(name, exercises, login) {
                             Login: login,
                             Name: name,
                             Exercises: exercises
-                        }).then(() => {
-                            return done(response);
-                        })
-                            .catch(err => {
+                        }, function (err, res) {
+                            if (err) {
                                 console.log('ERROR, libs/addProgram.js, addProgramToDB()3: ' + err.message);
 
                                 response.Status = false;
                                 response.Body.Msg = err.message;
 
                                 return response;
-                            });
+                            } else {
+                                response.Status = true;
+                                return done(response);
+                            }
+                        })
                     }
                 }).catch(err => {
                     console.log('ERROR, libs/addProgram.js, addProgramToDB()2: ' + err.message);

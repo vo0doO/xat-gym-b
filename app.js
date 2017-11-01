@@ -8,13 +8,14 @@ var session = require('express-session');
 var cors = require('cors');
 var jwt = require('jsonwebtoken');
 
-var config = require('./config.json');
+var config = require('./settings.json');
 
 var index = require('./routes/index');
 var signIn = require('./routes/signIn');
 var checkSignInStatus = require('./routes/checkSignInStatus');
 var addProgram = require('./routes/addProgram');
 var myPrograms = require('./routes/myPrograms');
+var deleteProgram = require('./routes/deleteProgram');
 
 var test = require('./routes/test');
 
@@ -53,6 +54,7 @@ app.use('/api/checksigninstatus', checkSignInStatus);
 
 app.use('/api/addProgram', addProgram);
 app.use('/api/myPrograms', myPrograms);
+app.use('/api/deleteProgram', deleteProgram);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
