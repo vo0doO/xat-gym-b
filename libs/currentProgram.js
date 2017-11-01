@@ -1,13 +1,12 @@
 const MongoCLient = require('mongodb').MongoClient;
+const mongo = require('mongodb')
 
 const checkSigIn = require('./checkSignInStatus');
 const config = require('../settings.json');
 
+module.exports.currentProgram = currentProgram;
 
-module.exports.myPrograms = myPrograms;
-
-async function myPrograms(req, res) {
-    var token
+function currentProgram(req, res) {
     var response = {
         Status: false,
         Login: null,
@@ -16,9 +15,9 @@ async function myPrograms(req, res) {
         }
     }
 
-    var token = req.body.Token;
+    var checkToken = checkSigIn.checkSignInStatusServer(token);
 
-    if (token == '') {
+    if (checkToken.Status == false) {
         response.Status = false;
         response.Login = false;
 
@@ -27,41 +26,31 @@ async function myPrograms(req, res) {
         return;
     }
 
-    var checkToken = checkSigIn.checkSignInStatusServer(token);
+    var program_id = req.body.ID;
 
-    /*if (checkToken.Status == false) {
-        response.Status = false;
-        response.Login = false
+    if (program_id == null || program_id == undefined || program_id == '') {
+        response.Status = true;
+        response.Login = false;
 
-        res.send(response);
-
-        return;
-    }*/
-
-    var login = checkToken.Body.Decode.Email;
-
-    var programs = await checkProgramInDB(login);
-
-    if (programs.Status == false) {
-        response.Status = false;
-        response.Login = true;
-        response.Body.Msg = programs.Body.Msg;
+        response.Body.Msg = 'Program ID cannot be empty';
 
         res.send(response);
 
         return;
     }
 
+
+
+    getProgramInDB(id)
+
     response.Status = true;
-    response.Body.Login = login;
-    response.Body.Programs = programs.Body.Result;
+    response.Body.Msg = '666';
 
     res.send(response);
-    return;
 }
 
-function checkProgramInDB(login) {
-    return new Promise(async done => {
+function getProgramInDB(id) {
+    return new Promise(done => {
         var response = {
             Status: false,
             Body: {
@@ -72,22 +61,22 @@ function checkProgramInDB(login) {
 
         MongoCLient.connect(config.MongoURL, async (err, db) => {
             if (err) {
-                console.log('ERROR, libs/myPrograms.js, checkProgramInDB()1: ' + err.message);
+                console.log('ERROR, libs/currentProgram.js, getProgramInDB()1: ' + err.message);
 
                 response.Status = false;
                 response.Body.Msg = err.message;
 
-                return response;
+                return done(response);
             } else {
-                db.collection('programs').find({
-                    Login: login
+                db.collection('programs').findOne({
+                    _id: new mongo.ObjectID(id)
                 }).toArray().then(result => {
                     response.Status = true;
                     response.Body.Result = result;
 
                     return done(response);
                 }).catch(err => {
-                    console.log('ERROR, libs/myPrograms.js, checkProgramInDB()2: ' + err.message);
+                    console.log('ERROR, libs/currentProgram.js, getProgramInDB()2: ' + err.message);
 
                     response.Status = false;
                     response.Body.Msg = err.message;

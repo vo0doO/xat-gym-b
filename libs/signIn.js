@@ -29,7 +29,7 @@ async function signIn(req, res) {
         var token = jwt.sign({
             Email: email
         }, config.SecretKey, {
-                expiresIn: 1440,
+                expiresIn: 300,
             });
     } catch (e) {
         console.log('ERROR, libs/signIn.js, signIn(): ' + e.message);

@@ -16,6 +16,7 @@ var checkSignInStatus = require('./routes/checkSignInStatus');
 var addProgram = require('./routes/addProgram');
 var myPrograms = require('./routes/myPrograms');
 var deleteProgram = require('./routes/deleteProgram');
+var currentProgram = require('./routes/currentProgram');
 
 var test = require('./routes/test');
 
@@ -55,6 +56,7 @@ app.use('/api/checksigninstatus', checkSignInStatus);
 app.use('/api/addProgram', addProgram);
 app.use('/api/myPrograms', myPrograms);
 app.use('/api/deleteProgram', deleteProgram);
+app.use('/api/program', currentProgram);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

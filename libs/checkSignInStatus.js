@@ -29,7 +29,7 @@ function checkSignInStatus(req, res) {
             Token: token,
             Decode: decoded
         }
-    })
+    });
 }
 
 function checkSignInStatusServer(token) {
