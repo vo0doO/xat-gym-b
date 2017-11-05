@@ -54,14 +54,14 @@ function deleteFromDB(id) {
                 return response;
             } else {
                 db.collection('programs').remove({
-                        _id: new mongo.ObjectID(id)
+                        Url: id
                     })
                     .then(() => {
                         response.Status = true;
 
                         return done(response);
                     })
-                    .then(err => {
+                    .catch(err => {
                         response.Status = false;
                         response.Body.Msg = err;
 

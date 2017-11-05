@@ -1,4 +1,5 @@
 const MongoCLient = require('mongodb').MongoClient;
+const randomstring = require("randomstring");
 
 const checkSigIn = require('./checkSignInStatus');
 const config = require('../settings.json');
@@ -88,6 +89,7 @@ function addProgramToDB(name, exercises, login) {
                     } else {
                         db.collection('programs').insert({
                             Login: login,
+                            Url: randomstring.generate(10),
                             Name: name,
                             Exercises: exercises
                         }, function (err, res) {

@@ -33,27 +33,32 @@ function checkSignInStatus(req, res) {
 }
 
 function checkSignInStatusServer(token) {
+    var response = {
+        Status: false,
+        Body: {
+            Token: null,
+            Decode: null
+        }
+    }
+
+    if (token == '' || token == null || token == undefined) {
+        return response;
+    }
+
     try {
         var decoded = jwt.verify(token, config.SecretKey);
     } catch (e) {
         console.log('ERROR, /libs/checkSignInStatus/, checkSignInStatusServer()1: ' + e.message);
 
-        return {
-            Status: false,
-            Body: {
-                Message: e.message
-            }
-        };
+        response.Status = false;
+        response.Body.Msg = e.message;
 
+        return response;
     }
-    
-    console.log('xxx: ' + JSON.stringify(decoded));
 
-    return {
-        Status: true,
-        Body: {
-            Token: token,
-            Decode: decoded
-        }
-    }
+    response.Status = true;
+    response.Body.Token = token;
+    response.Body.Decode = decoded;
+
+    return response;
 }
