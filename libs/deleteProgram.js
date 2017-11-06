@@ -51,7 +51,7 @@ function deleteFromDB(id) {
                 response.Status = false;
                 response.Body.Msg = err;
 
-                return response;
+                return done(response);
             } else {
                 db.collection('programs').remove({
                         Url: id
@@ -65,7 +65,7 @@ function deleteFromDB(id) {
                         response.Status = false;
                         response.Body.Msg = err;
 
-                        return response;
+                        return done(response);
                     });
             }
         })

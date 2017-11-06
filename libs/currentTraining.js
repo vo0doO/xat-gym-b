@@ -1,85 +1,70 @@
 const MongoCLient = require('mongodb').MongoClient;
-const mongo = require('mongodb')
+const randomstring = require("randomstring");
 
 const checkSigIn = require('./checkSignInStatus');
 const config = require('../settings.json');
 
-module.exports.currentProgram = currentProgram;
+module.exports.getProgram = getProgram;
 
-async function currentProgram(req, res) {
+async function getProgram(req, res) {
     var response = {
         Status: false,
         Login: null,
         Body: {
-            Msg: '',
-            Program: null
+            Msg: '666'
         }
     }
 
     var token = req.body.Token;
+    var url = req.body.URL;
 
-    try {
-        var checkToken = checkSigIn.checkSignInStatusServer(token);
-    } catch (e) {
-        console.log(e);
-    }
+    var checkToken = checkSigIn.checkSignInStatusServer(token);
 
     if (checkToken.Status == false) {
         response.Status = false;
         response.Login = false;
+        response.Body.Msg = 'Auth error';
 
         res.send(response);
 
         return;
     }
 
-    var program_id = req.body.ID;
-
-    if (program_id == null || program_id == undefined || program_id == '') {
+    if (url == '' || url == null || url == undefined) {
         response.Status = false;
         response.Login = true;
-
-        response.Body.Msg = 'Program ID cannot be empty';
+        response.Body.Msg = 'Empty url';
 
         res.send(response);
 
         return;
     }
 
+    var login = checkToken.Body.Decode.Email;
+
+    console.log('Login: ' + login);
+    console.log('Url: ' + url);
+
+    var checkToken = await getProgramFromDB(url, login);
+
+    if (checkToken.Status == false) {
+        response.Status = false;
+        response.Login = true;
+        response.Body.Msg = 'No training';
+
+        res.send(response);
+
+        return;
+    }
+
+    response.Status = true;
     response.Login = true;
+    response.Body.Result = checkToken.Body.Result;
 
-    try {
-        var founded_program = await getProgramInDB(program_id);
-    } catch (err) {
-        console.log(err);
-
-        response.Status = false;
-        response.Login = true;
-        response.Body.Msg = err;
-
-        res.send(response);
-
-        return;
-    }   
-
-    if (founded_program.Status == false) {
-        response.Status = false;
-        response.Login = true;
-
-        response.Body.Msg = founded_program.Body.Msg;
-    }
-
-    if (founded_program.Status == true) {
-        response.Status = true;
-        response.Login = true;
-
-        response.Body.Program = founded_program.Body.Result;
-    }
-
-    res.send(response);
+    res.send(response)
 }
 
-function getProgramInDB(id) {
+function getProgramFromDB(url, login) {
     return new Promise(done => {
         var response = {
             Status: false,
@@ -91,18 +76,19 @@ function getProgramInDB(id) {
 
         MongoCLient.connect(config.MongoURL, (err, db) => {
             if (err) {
-                console.log('ERROR, libs/currentProgram.js, getProgramInDB()1: ' + err.message);
+                console.log('ERROR, libs/currentTraining.js, getProgramFromDB()1: ' + err.message);
 
                 response.Status = false;
                 response.Body.Msg = err.message;
 
                 return done(response);
             } else {
-                db.collection('programs').findOne({
-                    Url: id
+                db.collection('trainings').findOne({
+                    URL: url,
+                    Login: login
                 }, (err, result) => {
                     if (err) {
-                        console.log('ERROR, libs/currentProgram.js, getProgramInDB()2: ' + err.message);
+                        console.log('ERROR, libs/currentTraining.js, getProgramFromDB()2: ' + err.message);
 
                         response.Status = false;
                         response.Body.Msg = err.message;
@@ -123,16 +109,4 @@ function getProgramInDB(id) {
             }
         });
     });
-}
-
-String.prototype.hexEncode = function(){
-    var hex, i;
-
-    var result = "";
-    for (i=0; i<this.length; i++) {
-        hex = this.charCodeAt(i).toString(16);
-        result += ("000"+hex).slice(-4);
-    }
-
-    return result
 }

@@ -1,13 +1,12 @@
 const MongoCLient = require('mongodb').MongoClient;
+const randomstring = require("randomstring");
 
 const checkSigIn = require('./checkSignInStatus');
 const config = require('../settings.json');
 
+module.exports.getTrainings = getTrainings;
 
-module.exports.myPrograms = myPrograms;
-
-async function myPrograms(req, res) {
-    var token
+async function getTrainings(req, res) {
     var response = {
         Status: false,
         Login: null,
@@ -18,20 +17,12 @@ async function myPrograms(req, res) {
 
     var token = req.body.Token;
 
-    if (token == '') {
-        response.Status = false;
-        response.Login = false;
-
-        res.send(response);
-
-        return;
-    }
-
     var checkToken = checkSigIn.checkSignInStatusServer(token);
 
     if (checkToken.Status == false) {
         response.Status = false;
-        response.Login = false
+        response.Login = false;
+        response.Body.Msg = 'Auth error';
 
         res.send(response);
 
@@ -40,12 +31,13 @@ async function myPrograms(req, res) {
 
     var login = checkToken.Body.Decode.Email;
 
-    var programs = await checkProgramInDB(login);
+    var getProgramsResult = await getProgramsInDB(login);
 
-    if (programs.Status == false) {
+    if (getProgramsResult.Status == false) {
         response.Status = false;
         response.Login = true;
-        response.Body.Msg = programs.Body.Msg;
+
+        response.Body.Msg = getProgramsResult.Body.Msg;
 
         res.send(response);
 
@@ -53,33 +45,33 @@ async function myPrograms(req, res) {
     }
 
     response.Status = true;
-    response.Body.Login = login;
-    response.Body.Programs = programs.Body.Result;
+    response.Login = true;
 
-    res.send(response);
-    return;
+    response.Body.Result = getProgramsResult.Body.Result;
+
+    res.send(response)
 }
 
-function checkProgramInDB(login) {
+function getProgramsInDB(login) {
     return new Promise(async done => {
         var response = {
             Status: false,
             Body: {
                 Msg: 'Empty',
-                Data: null
+                Result: null
             }
         }
 
-        MongoCLient.connect(config.MongoURL, async (err, db) => {
+        MongoCLient.connect(config.MongoURL, async(err, db) => {
             if (err) {
-                console.log('ERROR, libs/myPrograms.js, checkProgramInDB()1: ' + err.message);
+                console.log('ERROR, libs/myTrainings.js, checkProgramInDB()1: ' + err.message);
 
                 response.Status = false;
                 response.Body.Msg = err.message;
 
                 return response;
             } else {
-                db.collection('programs').find({
+                db.collection('trainings').find({
                     Login: login
                 }).toArray().then(result => {
                     response.Status = true;
@@ -87,7 +79,7 @@ function checkProgramInDB(login) {
 
                     return done(response);
                 }).catch(err => {
-                    console.log('ERROR, libs/myPrograms.js, checkProgramInDB()2: ' + err.message);
+                    console.log('ERROR, libs/myTrainings.js, checkProgramInDB()2: ' + err.message);
 
                     response.Status = false;
                     response.Body.Msg = err.message;

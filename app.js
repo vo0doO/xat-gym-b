@@ -18,6 +18,10 @@ var myPrograms = require('./routes/myPrograms');
 var deleteProgram = require('./routes/deleteProgram');
 var updateProgram = require('./routes/updateProgram');
 var currentProgram = require('./routes/currentProgram');
+var addTraining = require('./routes/addTraining');
+var currentTraining = require('./routes/currentTraining');
+var myTrainings = require('./routes/myTrainings');
+var deleteTraining = require('./routes/deleteTraining');
 
 var test = require('./routes/test');
 
@@ -59,6 +63,10 @@ app.use('/api/myPrograms', myPrograms);
 app.use('/api/deleteProgram', deleteProgram);
 app.use('/api/program', currentProgram);
 app.use('/api/updateProgram', updateProgram);
+app.use('/api/addTraining', addTraining);
+app.use('/api/training', currentTraining);
+app.use('/api/myTrainings', myTrainings);
+app.use('/api/deleteTraining', deleteTraining);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
