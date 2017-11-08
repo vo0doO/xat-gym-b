@@ -80,6 +80,8 @@ function addTrainingToDB(programName, exercises, login) {
                     URL: trainingUrl,
                     ProgramName: programName,
                     Login: login,
+                    StartStatus: true,
+                    StartDate: Date.now(),
                     Exercises: exercises
                 }).then(() => {
                     response.Status = true;

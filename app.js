@@ -22,6 +22,7 @@ var addTraining = require('./routes/addTraining');
 var currentTraining = require('./routes/currentTraining');
 var myTrainings = require('./routes/myTrainings');
 var deleteTraining = require('./routes/deleteTraining');
+var updateTraining = require('./routes/updateTraining');
 
 var test = require('./routes/test');
 
@@ -53,7 +54,6 @@ app.use(function (req, res, next) {
 });
 
 app.use('/', index);
-app.use('/test', test);
 
 app.use('/api/signin', signIn);
 app.use('/api/checksigninstatus', checkSignInStatus);
@@ -67,6 +67,7 @@ app.use('/api/addTraining', addTraining);
 app.use('/api/training', currentTraining);
 app.use('/api/myTrainings', myTrainings);
 app.use('/api/deleteTraining', deleteTraining);
+app.use('/api/updateTraining', updateTraining);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
