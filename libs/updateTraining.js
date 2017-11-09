@@ -32,8 +32,9 @@ async function updateTraining(req, res) {
     var login = checkToken.Body.Decode.Email;
     var trainingURL = req.body.URL;
     var exercises = req.body.Exercises;
+    var finish = req.body.Finish;
 
-    var updateTrainingStatus = await updateTrainingInDB(trainingURL, login, exercises);
+    var updateTrainingStatus = await updateTrainingInDB(trainingURL, login, exercises, finish);
 
     if (updateTrainingStatus == false) {
         response.Status = false;
@@ -52,7 +53,7 @@ async function updateTraining(req, res) {
     res.send(response);
 }
 
-function updateTrainingInDB(url, login, exercises) {
+function updateTrainingInDB(url, login, exercises, finish) {
     return new Promise(done => {
         var response = {
             Status: false,
@@ -71,14 +72,23 @@ function updateTrainingInDB(url, login, exercises) {
 
                 return response;
             } else {
+                var updObj = {}
+
+                console.log('Finish: ' + finish);
+
+                if (finish == true) {
+                    updObj.Finished = true;
+                    updObj.FinishDate = Date.now();
+                } else {
+                    updObj.Exercises = exercises
+                }
+
+                console.log('updObj: ' + JSON.stringify(updObj));
                 db.collection('trainings').findOneAndUpdate({
                     URL: url,
                     Login: login,
-
                 }, {
-                    $set: {
-                        Exercises: exercises
-                    }
+                    $set: updObj
                 }, (err, result) => {
                     if (err) {
                         console.log(err);
@@ -90,7 +100,6 @@ function updateTrainingInDB(url, login, exercises) {
 
                         return done(response);
                     } else {
-                        console.log(result);
 
                         response.Status = true;
 
