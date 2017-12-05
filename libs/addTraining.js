@@ -34,8 +34,9 @@ async function addTraining(req, res) {
     var programName = training.Name;
     var login = training.Login;
     var exercises = training.Exercises;
+    var programUrl = training.Url
 
-    var addedStatus = await addTrainingToDB(programName, exercises, login);
+    var addedStatus = await addTrainingToDB(programName, programUrl, exercises, login);
 
 
     if (addedStatus.Status == false) {
@@ -55,7 +56,7 @@ async function addTraining(req, res) {
     res.send(response);
 }
 
-function addTrainingToDB(programName, exercises, login) {
+function addTrainingToDB(programName, programUrl, exercises, login) {
     return new Promise(done => {
         var response = {
             Status: false,
@@ -79,6 +80,7 @@ function addTrainingToDB(programName, exercises, login) {
                 db.collection('trainings').insert({
                     URL: trainingUrl,
                     ProgramName: programName,
+                    ProgramUrl: programUrl,
                     Login: login,
                     StartDate: Date.now(),
                     FinishDate: '',
